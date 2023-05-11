@@ -11,7 +11,7 @@
 <meta property="article:author" content="飞雪">
 <meta property="article:tag" content="test">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.feixuei.cn/images/personal/test.png"><link rel="shortcut icon" href="/images/personal/blog.svg"><link rel="canonical" href="https://blog.feixuei.cn/article/d87f7e0c/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+<meta name="twitter:image" content="https://blog.feixuei.cn/images/personal/test.png"><link rel="shortcut icon" href="/images/personal/blog.svg"><link rel="canonical" href="https://blog.feixuei.cn/article/d87f7e0c/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
   root: '/',
   algolia: undefined,
   localSearch: {"path":"/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
@@ -50,7 +50,8 @@
   percent: {
     toc: true,
     rightside: true,
-  }
+  },
+  autoDarkmode: true
 }</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
   title: 'test',
   isPost: true,
@@ -227,22 +228,35 @@ document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-
       darkMode: document.documentElement.getAttribute('data-theme') === 'dark',
       countEl: '.artalk-count'
     },null))
+
+    if (GLOBAL_CONFIG.lightbox === 'null') return
+    window.artalkItem.use(ctx => {
+      ctx.on('list-loaded', () => {
+        ctx.getCommentList().forEach(comment => {
+          const $content = comment.getRender().$content
+          btf.loadLightbox($content.querySelectorAll('img:not([atk-emoticon])'))
+        })
+      })
+    })
   }
 
   if (typeof window.artalkItem === 'object') setTimeout(()=>{initArtalk()},200)
   else {
-    getCSS('https://cdn.jsdelivr.net/npm/artalk/dist/Artalk.min.css')
-    typeof Artalk !== 'function' ? getScript('https://cdn.jsdelivr.net/npm/artalk/dist/Artalk.min.js').then(initArtalk)
-                                : setTimeout(()=>{initArtalk()},200)
+    getCSS('https://cdn.jsdelivr.net/npm/artalk/dist/Artalk.min.css').then(()=>{
+      typeof Artalk !== 'function' ? getScript('https://cdn.jsdelivr.net/npm/artalk/dist/Artalk.min.js').then(initArtalk)
+                          : setTimeout(()=>{initArtalk()},200)
+    })
   }
 }
 
-document.getElementById('darkmode').addEventListener('click',()=> {
-  if (typeof window.artalkItem !== 'object') return
-  let isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-  window.artalkItem.setDarkMode(!isDark)
-})
+function artalkChangeMode (theme) {
+  const artalkWrap = document.getElementById('artalk-wrap')
+  if (!(artalkWrap && artalkWrap.children.length)) return
+  const isDark = theme === 'dark'
+  window.artalkItem.setDarkMode(isDark)
+}
 
+btf.addModeChange('artalk', artalkChangeMode)
 
 if ('Artalk' === 'Artalk' || !true) {
   if (true) btf.loadComment(document.getElementById('artalk-wrap'), loadArtalk)
